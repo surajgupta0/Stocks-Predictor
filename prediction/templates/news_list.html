@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2 class="mb-4">Latest News</h2>
+    <form method="get" class="card mb-4">
+        <div class="row card-body">
+            <div class="col-5">
+                <input type="text" name="q" class="form-control mb-0" placeholder="Search news..." value="{{ request.GET.q }}">
+            </div>
+            <div class="col-5 ">
+                <select name="category" class="form-control mb-0">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                        <option value="{{ category }}" {% if request.GET.category == category %}selected{% endif %}>{{ category|capfirst }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-2" >
+                <button type="submit" class="form-control mb-0 btn btn-primary w-100">Filter</button>
+            </div>
+        </div>
+    </form>
+    <div class="row">
+        {% for article in articles %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    {% if article.urlToImage %}
+                        <img src="{{ article.urlToImage }}" class="card-img-top" alt="{{ article.title }}">
+                    {% else %}
+                        <img src="https://via.placeholder.com/150" class="card-img-top" alt="No image available">
+                    {% endif %}
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">{{ article.title }}</h5>
+                        <p class="card-text">{{ article.description|truncatewords:20 }}</p>
+                        <p class="card-text"><small class="text-muted">Published at: {{ article.publishedAt}}</small></p>
+                        <a href="{{ article.url }}" class="btn btn-primary mt-auto" target="_blank">Read More</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

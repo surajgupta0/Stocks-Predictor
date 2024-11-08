@@ -1,0 +1,470 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="row ">
+    <div class="col-lg-9 ">
+        <div class=" nav_card card"> 
+            <div class="card-body">
+                <ul class="nav nav-tabs" id="myTab">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#summary" onclick="showTab('summary')">Summary</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#hist_data" onclick="showTab('hist_data')">Historical Data</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#news" onclick="showTab('news')">News</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#financial" onclick="showTab('financial')">Financial</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="tab-content">
+            <div id="summary" class="card active tab-pane">
+                <div class="card-body">
+                    <!-- Stock Info -->
+                    <div class="stock-info">
+                        <div class="row border-bottom pb-2">
+                            <h3 id="stockname" class="col-lg-10">{{stock_name}} (<span id="stockSymbol">{{symbol}}</span>)</h3>
+                            <div id="portfolio-btn" class="col-lg-2">
+                                {% if stock_in_portfolio %}
+                                    <button id="follow-btn" class="watchlist_btn" data-symbol="{{ symbol }}" data-security-name="{{ stock_name }}"><i class="bi bi-bookmark-fill"></i> Following</button>
+                                {% else %}
+                                    <button id="follow-btn" class="watchlist_btn" data-symbol="{{ symbol }}" data-security-name="{{ stock_name }}"><i class="bi bi-bookmark"></i> Follow</button>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="stk_price_container">
+                            <h3 id="currentPrice">
+                                <span id="stk_price">{{current_price}}</span>
+                                <span id="stk_per"></span>
+                            </h3>
+                        </div>
+                    </div>
+
+                    <!-- Time Range Buttons -->
+                    <div class="time-buttons">
+                        <button class="time_btn" data-id="1d">1D</button>
+                        <button class="time_btn active" data-id="1mo">1M</button>
+                        <button class="time_btn" data-id="6mo" >6M</button>
+                        <button class="time_btn" data-id="1y">1Y</button>
+                        <button class="time_btn" data-id="5y">5Y</button>
+                        <button class="time_btn" data-id="max" >All</button>
+                    </div>
+
+                    <!-- Stock Chart -->
+                    <div class="chart-container">
+                        <canvas id="stockChart"></canvas>
+                    </div>
+                    <div class="row summary_container">
+                        <div class="col">
+                            <div class="stk_summary"><strong>Previous Close:</strong> {{ previous_close }}</div>
+                            <div class="stk_summary"><strong>Open Price:</strong> {{ open_price }}</div>
+                            <div class="stk_summary"><strong>Market Cap:</strong> {{ market_cap }}</div>
+                            <div class="stk_summary"><strong>52 Week Range:</strong> {{ week_52_range  }}</div>
+                            <div class="stk_summary"><strong>Volume:</strong> {{ volume }}</div>
+                            <div class="stk_summary"><strong>Expense Ratio (net):</strong> {{ expense_ratio  }}</div>
+
+                        </div>
+                        <div class="col">
+                            <div class="stk_summary"><strong>Avg. Volume:</strong> {{ avg_volume  }}</div>
+                            <div class="stk_summary"><strong>Bid:</strong> {{ bid }}</div>
+                            <div class="stk_summary"><strong>Bid Size:</strong> {{ bid_size }}</div>
+                            <div class="stk_summary"><strong>Ask:</strong> {{ ask }}</div>
+                            <div class="stk_summary"><strong>Ask Size:</strong> {{ ask_size }}</div>
+                            <div class="stk_summary"><strong>Beta (5Y Monthly):</strong> {{ beta  }}</div>
+                        </div>
+                        <div class="col">
+                            <div class="stk_summary"><strong>P/E Ratio</strong> {{ pe_ratio }}</div>
+                            <div class="stk_summary"><strong>Day Range:</strong> {{ day_range }}</div>
+                            <div class="stk_summary"><strong>Net Assets:</strong> {{ net_assets  }}</div>
+                            <div class="stk_summary"><strong>NAV:</strong> {{ nav  }}</div>
+                            <div class="stk_summary"><strong>Yield:</strong> {{ yield_percentage  }}</div>
+                            <div class="stk_summary"><strong>YTD Daily Total Return:</strong> {{ ytd_return  }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="hist_data" class="card tab-pane">
+                <div class="card-body">
+
+                    <!-- Historical Data Table -->
+                    <h3>Historical Data (Last 1 Year)</h3>
+                    <table class="table text-nowrap mb-0 align-middle hist_data">
+                        <thead text-dark fs-4>
+                            <tr>
+                                <th>Date</th>
+                                <th>Open</th>
+                                <th>High</th>
+                                <th>Low</th>
+                                <th>Close</th>
+                                <th>Volume</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in page_obj.object_list %}
+                                <tr>
+                                    <td>{{ row.Date|date:"M d, Y" }}</td>
+                                    <td>{{ row.Open }}</td>
+                                    <td>{{ row.High }}</td>
+                                    <td>{{ row.Low }}</td>
+                                    <td>{{ row.Close }}</td>
+                                    <td>{{ row.Volume }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <!-- Pagination Controls -->
+                    <div class="pagination">
+                        <div class="pagi-left">
+                            {% if page_obj.has_previous %}
+                                <a href="?page=1" class="bi bi-chevron-double-left"></a>
+                                <a href="?page={{ page_obj.previous_page_number }}" class="bi bi-chevron-left"></a>
+                            {% endif %}
+                        </div> 
+                        <div class="pagi-center">   
+                            <span class="current">
+                                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                            </span>
+                        </div>
+                        <div class="pagi-right">
+                            {% if page_obj.has_next %}
+                                <a href="?page={{ page_obj.next_page_number }}" class="bi bi-chevron-right"></a>
+                                <a href="?page={{ page_obj.paginator.num_pages }}" class="bi bi-chevron-double-right"></a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane card" id="financial">
+                <div class="card-body">
+                    <h3 class="mt-4">Financial Data</h3>
+                    {% if financial_data %}
+                        <canvas id="financialChart" class="my-3"></canvas>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Year</th>
+                                    <th>Total Assets</th>
+                                    <th>Total Liabilities</th>
+                                    <th>Total Equity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for report in financial_data %}
+                                    <tr>
+                                        <td>{{ report.fiscalDateEnding }}</td>
+                                        <td>{{ report.totalAssets }}</td>
+                                        <td>{{ report.totalLiabilities }}</td>
+                                        <td>{{ report.totalShareholderEquity }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p>No financial data available.</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div id="news" class="card tab-pane">
+                <div class="card-body">
+                    <!-- Stock News -->
+                    <h3>Latest News</h3>
+                    <ul>
+                        {% for article in news %}
+                            <div class="news_row row p-3">
+                                <div class="col-lg-8">
+                                    <h5><a href="{{ article.link }}" target="_blank">{{ article.title }}</a></h5>
+                                    <p>{{ article.description }}</p>
+                                </div>
+                                <div class="col-lg-4">
+                                    {% if article.thumbnail.resolutions.0.url %}
+                                        <img class="article-thumb" src ="{{article.thumbnail.resolutions.0.url}}" > 
+                                    {% else %}
+                                        <img class="article-thumb" src ="{% static 'images/logo.png' %}" > 
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% empty %}
+                            <li>No news available for this stock.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="card">
+            <div class="card-body summary_container">
+                <!-- Stock Summary -->
+                <h4>Resently Viewed</h4>
+                {% for stock, stock_data in recently_viewed.items %}
+                <div class="row single_summary">
+                    <div class="col-6">
+                        <p class="stk_sym">{{ stock }}</p>
+                        <p class="stk_name">{{ stock_data.name|slice:":10"}}...</p>
+                    </div>
+                    <div class="col-6">
+                        <p class="stk_price">{{ stock_data.current_price}}</p>
+                        <p class="stk_change">
+                            {% if stock_data.change < 0 %}
+                                <span class="text-danger">{{ stock_data.change }} ({{ stock_data.percent_change }}%)</span>
+                            {% elif stock_data.change > 0 %}
+                                <span class="text-success">+{{ stock_data.change }} (+{{ stock_data.percent_change }}%)</span>
+                            {%else%}
+                                <span>{{ stock_data.change }} ({{ stock_data.percent_change }}%)</span>
+                            {% endif %}
+                    </div>
+
+                </div>
+                {% endfor %}
+
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3"></script>
+
+
+    <script>
+        let stockChart;
+
+        // Function to fetch and display stock data
+        function loadChartData(period) {
+            const symbol = document.getElementById('stockSymbol').innerText;
+            
+            // Fetch stock data using FinHub or any API of choice
+            fetch(`/api/stock-data/${symbol}?period=${period}`)
+            .then(response => response.json())
+            .then(data => {
+                const labels = Object.keys(data['Close']);
+                const prices = Object.values(data['Close']);
+
+                var closing = Math.round(prices[prices.length - 1] * 100)/100;
+                var opening = Math.round(Object.values(data['Open'])[0]*100)/100;
+
+                var change = Math.round((closing - opening)*100)/100;
+                try {   
+                    var percent_change = Math.round((change / opening) * 100*100)/100;
+                } catch (error) {
+                
+                var percent_change = 0;
+                }
+                
+                document.getElementById('stk_price').innerText = '$'+closing;
+                if(percent_change > 0){
+                    document.getElementById('stk_per').innerHTML = '<span class="text-success">+'+change+'(+'+percent_change+'%)</span>';
+                }else if(percent_change < 0){
+                    document.getElementById('stk_per').innerHTML = '<span class="text-danger">'+change+'('+percent_change+'%)</span>';
+                }else{
+                    document.getElementById('stk_per').innerHTML = '<span>0(0%)</span>';
+                }
+
+                
+                // Destroy previous chart instance if it exists
+                if (stockChart) {
+                    stockChart.destroy();
+                }
+
+                const ctx = document.getElementById('stockChart').getContext('2d');
+                stockChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Closing Price',
+                            data: prices,
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderWidth: 1,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        tooltips: {
+                            enabled: true
+                        },
+                        scales: {
+                            x: {
+                                type: 'time',
+
+                                title: {
+                                    display: true,
+                                    text: 'Date'
+                                },
+                                grid: {
+                                    display: false  // Hide grid lines for x-axis
+                                },
+                                ticks: {
+                                    maxTicksLimit: 10,
+                                }
+                            },
+                            y: {
+                                beginAtZero: false,
+                                title: {
+                                    display: true,
+                                    text: 'Price (USD)'
+                                },
+                                
+                            }
+                        }
+                    }
+                });
+            });
+        }
+
+        // Load 1-year data when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadChartData('1mo');
+        });
+
+        btn_list = document.querySelectorAll('.time_btn');
+        btn_list.forEach(function(btn) {
+            btn.addEventListener('click',function(event){
+                document.querySelectorAll('.time_btn').forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+                var id = event.target.getAttribute('data-id');
+                loadChartData(id);
+            });
+        });
+
+
+
+    // Function to show the corresponding tab based on tab name
+    function showTab(tabName) {
+        event.preventDefault();
+        // Hide all tab panes
+        const tabPanes = document.querySelectorAll('.tab-pane');
+        tabPanes.forEach(pane => {
+            pane.classList.remove('active');
+        });
+
+        // Remove active class from all nav links
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+        });
+
+        // Show the selected tab pane
+        document.getElementById(tabName).classList.add('active');
+
+        // Set the active class on the clicked link
+        document.querySelector('a[href="#'+tabName+'"]').classList.add('active');
+
+        // Update the URL hash
+        window.location.hash = tabName;
+    }
+
+    // Function to check the URL hash on page load and show the corresponding tab
+    function checkHash() {
+        const hash = window.location.hash.substring(1); // Remove the '#' character
+        if (hash) {
+            showTab(hash);
+        }
+    }
+
+    // Check hash when the page loads
+    window.onload = checkHash;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const followBtn = document.getElementById('follow-btn');
+        
+        if (followBtn) {
+            followBtn.addEventListener('click', function(event) {
+                event.preventDefault();
+                const symbol = this.getAttribute('data-symbol');
+                const securityName = this.getAttribute('data-security-name');
+                
+                fetch("{% url 'toggle_portfolio' %}", {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams({
+                        'symbol': symbol,
+                        'security_name': securityName
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'added') {
+                        followBtn.innerHTML = '<i class="bi bi-bookmark-fill"></i>Following';
+                    } else if (data.status === 'removed') {
+                        followBtn.innerHTML = '<i class="bi bi-bookmark"></i>Follow';
+
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        }
+    });
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var ctx = document.getElementById('financialChart').getContext('2d');
+        var chartData = {
+            labels: {{ chart_data.labels|safe }},
+            datasets: [
+                {
+                    label: 'Total Assets',
+                    data: {{ chart_data.total_assets|safe }},
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    fill: false
+                },
+                {
+                    label: 'Total Liabilities',
+                    data: {{ chart_data.total_liabilities|safe }},
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    fill: false
+                },
+                {
+                    label: 'Total Equity',
+                    data: {{ chart_data.total_equity|safe }},
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    fill: false
+                }
+            ]
+        };
+        var financialChart = new Chart(ctx, {
+            type: 'line',
+            data: chartData,
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Year'
+                        }
+                    },
+                    y: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Value'
+                        }
+                    }
+                }
+            }
+        });
+    });
+    </script>
+
+{% endblock %}

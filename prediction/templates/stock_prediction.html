@@ -1,0 +1,276 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card stock_prediction">
+  <div class="card-body">
+    <form class="row predict_form" method="POST" action="{% url 'predict_stock' %}">
+        {% csrf_token %}
+          <!-- Search Form -->
+        <div class=" col" style="position:relative;">
+          <p><label for="stock_name">Stock Name:</label></p>
+          <input type="text" id="stock_name" name = "symbol" value={% if post.symbol %} {{post.symbol}} {% else %} "" {% endif %} placeholder="Search for stocks..." aria-label="Search for stocks" onkeyup="fetchpredSuggestions()" onclick="fetchpredSuggestions()" required>
+          <!-- Dropdown for search suggestions -->
+          <div id="pred_suggestions_box" class="suggestions_box list-group mt-1" style="position: absolute; z-index: 1000; width: 100%;"></div>
+        </div>
+        <div class="col">
+          <p><label for="days">Predict Days</label></p>
+          <input type="number" value = {% if post.days %} {{post.days}} {% else %} 5 {% endif %}  id="days" name="days" required placeholder="Select No. of days">
+        </div>
+        <div class="col">
+            <p><label for="years">Dataset till:</label></p>
+            <Select name ="years" id="years">
+                <option value="6mo" {% if post.years %} {% if post.years == '6mo' %} selected {% endif %}{% endif %}>6 Month</option>
+                <option value="1y" {% if post.years %} {% if post.years == '1y' %} selected {% endif %}{% else %}selected{% endif %} >1 Year </option>
+                <option value="5y" {% if post.years %} {% if post.years == '5y' %} selected {% endif %}{% endif %}>5 Year</option>
+                <option value="max" {% if post.years %} {% if post.years == 'max' %} selected {% endif %}{% endif %}>Max</option>
+            </select>
+        </div>
+        <div class="col">
+            <p><label for="moving_avg">Moving Average:</label></p>
+            <Select name ="moving_avg" id="moving_avg">
+                <option value=10 {% if post.moving_avg %} {% if post.moving_avg == '10' %} selected {% endif %}{% endif %}>10</option>
+                <option value=30 {% if post.moving_avg %} {% if post.moving_avg == '30' %} selected {% endif %}{% endif %}>30 </option>
+                <option value=60 {% if post.moving_avg %} {% if post.moving_avg == '60' %} selected {% endif %}{% else %}selected{% endif %}>60</option>
+                <option value=100 {% if post.moving_avg %} {% if post.moving_avg == '100' %} selected {% endif %}{% endif %}>100</option>
+                <option value=120 {% if post.moving_avg %} {% if post.moving_avg == '120' %} selected {% endif %}{% endif %}>120</option>
+            </select>
+        </div>
+        <div class="col d-flex" >
+          <button  type="submit">Predict</button>
+        </div>
+    </form>
+  </div>
+</div>
+{% if predicted_prices %}
+
+<div class="row">
+    <div class="col-8">
+        <div class="row">
+            <div class="card">
+                <div class="card-body">
+                    <h3>Predicted Prices After Historical Line</h3>
+                    <canvas id="predictedPricesChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="card">
+                <div class="card-body">
+                    <h3>Moving Average vs Real Stock Price</h3>
+                    <canvas id="movingAvgChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="card">
+            <div class="card-body stk_pred_details">
+                <h3>Stock Details</h3>
+                <div class="row">
+                    <div class="col"><b>Symbol:</b></div>
+                    <div class="col">{{ symbol }}</div>
+                </div>
+                <div class="row">
+                    <div class="col"><b>Stock Name:</b></div>
+                    <div class="col">{{ stock_name }}</div>
+                </div>
+                <div class="row">
+                    <div class="col"><b>Current Price:</b></div>
+                    <div class="col">{{current_price}}</div>
+                </div>
+                <div class="row">
+                    <div class="col"><b>Change:</b></div>
+                    <div class="col {% if changes > 0 %}text-success{% elif changes < 0 %}text-danger{% endif%}">{{changes}}</div>
+                </div>
+                <div class="row ">
+                    <div class="col"><b>Percentage Change:</b></div>
+                    <div class="col {% if changes > 0 %}text-success{% elif changes < 0 %}text-danger{% endif%}">{{percent_change}}%</div>
+                </div>
+                <div class="row">
+                    <div class="col"><b>Accuracy Score:</b></div>
+                    <div class="col">{{ accuracy_score }}%</div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <h3>Predicted Prices</h3>
+                <table class="table text-nowrap mb-0 align-middle hist_data">
+                    <thead text-dark fs-4>
+                        <tr>
+                            <th>Date</th>
+                            <th>Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for date, price in predicted_prices.items %}
+                            <tr>
+                                <td>{{ date }}</td>
+                                <td>{{ price }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    var predictedPricesCtx = document.getElementById('predictedPricesChart').getContext('2d');
+    var movingAvgCtx = document.getElementById('movingAvgChart').getContext('2d');
+    
+    var predictedPricesChart = new Chart(predictedPricesCtx, {
+        type: 'line',
+        data: {
+            labels: {{ dates|safe }},
+            datasets: [{
+                label: 'Predicted Prices',
+                data: {{ predicted_prices|safe }},
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 0.5
+            }, {
+                label: 'Historiacal Prices',
+                data: {{ historical_prices|safe }},
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 0
+            }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Date'
+                    },
+                    grid: {
+                        display: false  // Hide grid lines for x-axis
+                    },
+                    ticks: {
+                        maxTicksLimit: 6,
+                    }
+                },
+                y: {
+                    beginAtZero: false,
+                    title: {
+                        display: true,
+                        text: 'Price (USD)'
+                    },
+                    
+                }
+            }
+        }
+    });
+    
+    var movingAvgChart = new Chart(movingAvgCtx, {
+        type: 'line',
+        data: {
+            labels: {{ dates|safe }},
+            datasets: [{
+                label: 'Moving Average',
+                data: {{ moving_average|safe }},
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 0
+            }, {
+                label: 'Real Stock Price',
+                data: {{ historical_prices|safe }},
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Date'
+                    },
+                    grid: {
+                        display: false  // Hide grid lines for x-axis
+                    },
+                    ticks: {
+                        maxTicksLimit: 6,
+                    }
+                },
+                y: {
+                    beginAtZero: false,
+                    title: {
+                        display: true,
+                        text: 'Price (USD)'
+                    },
+                    
+                }
+            }
+        }
+    });
+
+    // JavaScript to add attribute on click
+    document.getElementById('stock_name').addEventListener('click', function() {
+        this.setAttribute('data-clicked', 'true');
+    });
+    
+</script>
+{% endif %}
+    <script>
+      function fetchpredSuggestions() {
+        const query = document.getElementById("stock_name").value;
+        if (query.length > 0) {
+            
+            fetch(`/search-suggestions/?q=` + query)
+                .then(response => response.json())
+                .then(data => {
+                    let suggestionsBox = document.getElementById("pred_suggestions_box");
+                    suggestionsBox.innerHTML = "";  // Clear previous suggestions
+                    suggestionsBox.style.display="block";
+
+                    if(data.length>0){
+                        data.forEach(stock => {
+                            let item = document.createElement("a");
+                            item.classList.add("list-group-item", "list-group-item-action");
+                            item.setAttribute('onclick', 'searchStock( \''+stock.symbol+'\')');
+                            item.innerHTML = "<p class='stk_sym'>"+stock.symbol+"</p><p class='stk_desc'> "+stock.name+"</p>";
+                            suggestionsBox.appendChild(item);
+                        });
+                    }else{
+                        document.getElementById("pred_suggestions_box").innerHTML = "<div style='text-align:center;padding:40px 0px;'><i class='bi bi-exclamation-circle-fill'></i> <h5>No matching results for "+query+"</h5></div>";
+                    }
+                });
+        } else {
+            document.getElementById("pred_suggestions_box").style.display="none"
+        }
+    }
+    function searchStock(symbol){
+      document.getElementById("stock_name").value = symbol;
+      document.getElementById("pred_suggestions_box").style.display="none";
+    }
+
+    document.addEventListener('click', function(event) {
+        const searchBox = document.getElementById('stock_name');
+        const searchResults = document.getElementById('pred_suggestions_box');
+    
+        // Check if the clicked element is outside the search box or results
+        if (!searchBox.contains(event.target) && !searchResults.contains(event.target)) {
+            searchResults.style.display = 'none';  // Hide search results
+        }
+    });
+
+    </script>
+
+
+{% endblock %}
