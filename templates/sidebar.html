@@ -1,0 +1,100 @@
+ 
+    {% load static %}
+    <aside class="left-sidebar">
+        <!-- Sidebar scroll-->
+        <div>
+          <div class="brand-logo d-flex align-items-center justify-content-between">
+            <a href="/" class="text-nowrap logo-img">
+              <img src="{% static 'images/logo.png' %}" width="180" alt="" />
+            </a>
+            <div class="close-btn d-xl-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
+              <i class="bi bi-x"></i>
+            </div>
+          </div>
+          <!-- Sidebar navigation-->
+          <nav class="sidebar-nav scroll-sidebar" data-simplebar="">
+            <ul id="sidebarnav">
+              <li class="nav-small-cap">
+                <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
+                <span class="hide-menu">Home</span>
+              </li>
+              <li class="sidebar-item">
+                <a class="sidebar-link" href="{% url 'dashboard' %}">
+                    <span>
+                      <i class="bi bi-grid-1x2"></i> 
+                    </span>
+                    <span class="hide-menu">Dashboard</span>
+                </a>
+              </li>
+              <li class="sidebar-item">
+                <a class="sidebar-link" href="{% url 'predict_stock' %}">
+                    <span>
+                      <i class="bi bi-pie-chart"></i>
+                    </span>
+                    <span class="hide-menu">Prediction</span>
+                </a>
+              </li>
+              <li class="sidebar-item">
+                <a class="sidebar-link" href="{% url 'portfolio' %}">
+                    <span>
+                        <i class="bi bi-bookmark"></i>
+                    </span>
+                    <span class="hide-menu">Portfolio</span>
+                </a>
+              </li>
+              <li class="sidebar-item">
+                <a class="sidebar-link" href="{% url 'news_list' %}">
+                    <span>
+                      <i class="bi bi-newspaper"></i>
+                    </span>
+                    <span class="hide-menu">News</span>
+                </a>
+              </li>
+              <li class="sidebar-item">
+                <a class="sidebar-link" href="{% url 'alerts' %}">
+                    <span>
+                      <i class="bi bi-bell"></i>
+                    </span>
+                    <span class="hide-menu">Alert</span>
+                </a>
+              </li>
+              <li class="nav-small-cap">
+                <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
+                <span class="hide-menu">AUTH</span>
+              </li>
+              {% if not user.is_authenticated %}
+                <li class="sidebar-item">
+                  <a class="sidebar-link" href="{% url 'login' %}">
+                      <span>
+                        <i class="bi bi-box-arrow-in-right" style="font-size: 17px;"></i>
+                      </span>
+                      <span class="hide-menu">Login</span>
+                  </a>
+                </li>
+
+
+                <li class="sidebar-item">
+                  <a class="sidebar-link" href="{% url 'register' %}">
+                      <span>
+                        <i class="bi bi-person-plus" style="font-size: 17px;"></i>
+                      </span>
+                      <span class="hide-menu">Register</span>
+                  </a>
+                </li>
+              {% else %}
+                <li class="sidebar-item">
+                  <a class="sidebar-link" href="{% url 'logout' %}">
+                      <span>
+                        <i class="bi bi-box-arrow-right" style="font-size: 16px;"></i>
+                      </span>
+                      <span class="hide-menu">Logout</span>
+                  </a>
+                </li>
+              {% endif %}
+            </ul>
+          </nav>
+          <!-- End Sidebar navigation -->
+        </div>
+        <!-- End Sidebar scroll-->
+      </aside>
+      <!--  Sidebar End -->

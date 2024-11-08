@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="row d-flex align-items-stretch">
+    <div class="card w-100">
+      <div class="card-body p-4">
+        <h2 style="margin-bottom:20px;">My portfolio</h2>
+        <div class="table-responsive">
+          <table class="table text-nowrap mb-0 align-middle">
+            <thead class="text-dark fs-4">
+              <tr>
+                <th class=" stk_sym"><h6 class="fw-semibold mb-0">Symbol</h6></th>
+                <th><h6 class="fw-semibold mb-0">Current Price</h6></th>
+                <th><h6 class="fw-semibold mb-0">Volume</h6></th>
+                <th><h6 class="fw-semibold mb-0">Market Cap</h6></th>
+                <th><h6 class="fw-semibold mb-0">Change</h6></th>
+                <th><h6 class="fw-semibold mb-0">Percent Change</h6></th>
+              </tr>
+            </thead>
+            <tbody id="stock-table-body">
+
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pagination">
+            <div class="pagi-left" id="pagination-left"></div>
+            <div class="pagi-center"><span id="current-page-info"></span></div>
+            <div class="pagi-right" id="pagination-right"></div>
+        </div>
+      </div>
+    </div>
+</div>
+
+<script>
+  function loadStockData(page = 1) {
+    const tableBody = document.getElementById('stock-table-body');
+    var html = '';
+    for (var i = 0; i < 10; i++) {
+      html += `
+                <tr class="stk-loader">
+                  <td><span></span></td>
+                  <td><span></span></td>
+                  <td><span></span></td>
+                  <td><span></span></td>
+                  <td><span></span></td>
+                  <td><span></span></td>
+                </tr>`;
+      }
+
+      tableBody.innerHTML = html;
+
+      fetch(`/portfolio?page=${page}`, {
+          headers: {
+              'X-Requested-With': 'XMLHttpRequest',
+          },
+      })
+      .then(response => response.json())
+      .then(data => {
+          // Clear the table body
+          const tableBody = document.getElementById('stock-table-body');
+          tableBody.innerHTML = '';
+
+          // Populate table rows with stock data
+          if(data.stock_data.length === 0) {
+              const row = document.createElement('tr');
+              row.innerHTML = `
+                  <td colspan="6" class="text-center">No data available</td>
+              `;
+              tableBody.appendChild(row);
+          }else{
+          data.stock_data.forEach(stock => {
+              const row = document.createElement('tr');
+              row.innerHTML = `
+                  <td class="border-bottom-0 stk_sym">
+                      <a href="/stocks/${stock.symbol}">${stock.symbol}</a>
+                      <p>${stock.security_name}</p>
+                  </td>
+                  <td>${stock.current_price}</td>
+                  <td>${stock.volume}</td>
+                  <td>${stock.market_cap}</td>
+                  <td class="font-weight-bold ${stock.change >= 0 ? 'text-success' :  'text-danger'}">
+                      ${stock.change}
+                    </td>
+                    <td class="font-weight-bold ${stock.change >= 0 ? 'text-success' :  'text-danger'}">
+                      ${stock.change >= 0 ? '↑' : '↓'} ${Math.abs(stock.percent_change)}%
+                    </td>
+              `;
+              tableBody.appendChild(row);
+          });
+        
+          // Update pagination
+          const paginationLeft = document.getElementById('pagination-left');
+          paginationLeft.innerHTML = data.has_previous ? `
+              <a href="#" onclick="loadStockData(1); return false;">«</a>
+              <a href="#" onclick="loadStockData(${data.previous_page_number}); return false;">‹</a>
+          ` : '';
+
+          const paginationRight = document.getElementById('pagination-right');
+          paginationRight.innerHTML = data.has_next ? `
+              <a href="#" onclick="loadStockData(${data.next_page_number}); return false;">›</a>
+              <a href="#" onclick="loadStockData(${data.total_pages}); return false;">»</a>
+          ` : '';
+
+          // Update current page info
+          const currentPageInfo = document.getElementById('current-page-info');
+          currentPageInfo.innerText = `Page ${data.page_number} of ${data.total_pages}`;
+        }
+      })
+      .catch(error => console.error('Error fetching stock data:', error));
+  }
+
+  // Load initial data on page load
+  document.addEventListener('DOMContentLoaded', function() {
+      loadStockData(1);
+  });
+</script>
+
+{% endblock %}

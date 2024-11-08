@@ -1,0 +1,112 @@
+{% load static %}
+<!-- AJAX Script to fetch suggestions -->
+
+<header class="app-header"> 
+    <nav class="navbar navbar-expand-lg navbar-light">
+
+        <div class="navbar-collapse px-0" id="navbarNav">
+            <div class="container justify-content-start">
+                <!-- Search Form -->
+                <div class="input-group">
+                    <input type="text" id="searchBox" class="form-control" placeholder="Search for stocks..." aria-label="Search for stocks" onkeyup="fetchSuggestions()" onclick="fetchSuggestions()">
+                    <div class="input-group-append">
+                        <button id = "search_stocks" class="btn btn-primary" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                    <!-- Dropdown for search suggestions -->
+                    <div id="suggestions-box" class=" suggestions_box list-group mt-1" style="position: absolute; z-index: 1000; width: 100%;"></div>
+                </div>
+            
+                
+            </div>
+
+            <ul class="navbar-nav flex-row ms-auto align-items-center justify-content-end">
+                
+            {% if user.is_authenticated %}
+                <b>Welcome, {{ user.username }}!</b>
+                <li class="nav-item dropdown">
+                    <a class="nav-link nav-icon-hover" href="javascript:void(0)" id="drop2" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+
+                        <img src="{{ user.profile.profile_picture.url }}" alt="" width="35" height="35" class="rounded-circle">
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
+                        <div class="message-body">
+                        <a href="{% url 'profile' %}" class="d-flex align-items-center gap-2 dropdown-item">
+                            <i class="bi bi-person-circle"></i>
+                            <p class="mb-0 fs-3">My Profile</p>
+                        </a>
+
+                        <a href="{% url 'reset_password' %}" class="d-flex align-items-center gap-2 dropdown-item">
+                            <i class="bi bi-key"></i>
+                            <p class="mb-0 fs-3">Reset Password</p>
+                        </a>
+
+                        <a href="{% url 'logout' %}" class="btn btn-outline-primary mx-3 mt-2 d-block"><i class="bi bi-box-arrow-right" style="margin-right:10px"></i>Logout</a>
+                        </div>
+                    </div>
+                </li>
+                        
+            {% else %}
+            
+                <a class="nav-link" href="{% url 'login' %}" style="color:black;">
+                    <i class="bi bi-box-arrow-in-right" style="font-size: 16px; margin-right:10px;"></i>Login
+                </a>
+            {% endif %}
+
+            </ul>
+        </div>
+    </nav>
+</header>
+<script>
+
+    document.addEventListener('click', function(event) {
+        const searchBox = document.getElementById('searchBox');
+        const searchResults = document.getElementById('suggestions-box');
+    
+        // Check if the clicked element is outside the search box or results
+        if (!searchBox.contains(event.target) && !searchResults.contains(event.target)) {
+            searchResults.style.display = 'none';  // Hide search results
+        }
+    });
+    
+    document.getElementById('search_stocks').addEventListener('click', function(event) {
+        const query = document.getElementById("searchBox").value;
+        console.log(query);
+        if (query.length > 0) {
+            window.location.href= window.location.origin+'/stocks/'+query
+        }else{
+            alert("Please Enter stocks");
+        }
+    });
+
+
+    function fetchSuggestions() {
+        const query = document.getElementById("searchBox").value;
+        if (query.length > 0) {
+            
+            fetch(`/search-suggestions/?q=` + query)
+                .then(response => response.json())
+                .then(data => {
+                    let suggestionsBox = document.getElementById("suggestions-box");
+                    suggestionsBox.innerHTML = "";  // Clear previous suggestions
+                    suggestionsBox.style.display="block";
+
+                    if(data.length>0){
+                        data.forEach(stock => {
+                            let item = document.createElement("a");
+                            item.classList.add("list-group-item", "list-group-item-action");
+                            item.href = `/stocks/${stock.symbol}/`;
+                            item.innerHTML = "<p class='stk_sym'>"+stock.symbol+"</p><p class='stk_desc'> "+stock.name+"</p>";
+                            suggestionsBox.appendChild(item);
+                        });
+                    }else{
+                        document.getElementById("suggestions-box").innerHTML = "<div style='text-align:center;padding:40px 0px;'><i class='bi bi-exclamation-circle-fill'></i> <h5>No matching results for "+query+"</h5></div>";
+                    }
+                });
+        } else {
+            document.getElementById("suggestions-box").style.display="none"
+        }
+    }
+</script>

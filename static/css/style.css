@@ -1,0 +1,493 @@
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #333333;
+    --border-color: #dde0e4;
+    --background-color: #f5f5f5;
+    --text-color: #333333;
+    --muted-text-color: #777777;
+  
+    /* Additional color variables */
+    --dark-color: #2c3e50;
+    --light-color: #ecf0f1;
+    --warning-color: #f39c12;
+    --success-color: #06bb20;
+    --danger-color: #d60a22;
+  }
+
+.bi::before{
+    font-weight: bolder !important;
+}
+h1,h2,h3,h4,h5,h6{
+    font-weight: bold;
+}
+.text-success{
+    color:var(--success-color) !important;
+}
+
+.text-danger{
+    color: var(--danger-color) !important;
+}
+
+/*portfolio CSS start*/
+
+.container {
+    width: 80%;
+    margin: auto;
+}
+
+.header {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.portfolio-summary {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+}
+
+.portfolio-card {
+    background-color: #3498db;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 30%;
+}
+
+.portfolio-card p {
+    font-size: 24px;
+    margin: 10px 0;
+}
+
+.profit {
+    color: green;
+}
+
+.loss {
+    color: red;
+}
+
+.stock-filter {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    font-weight: bold;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+}
+
+
+.btn {
+    padding: 5px 10px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.btn-primary {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn-warning {
+    background-color: #f39c12;
+    color: white;
+}
+
+.btn-danger {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.stock-performance {
+    margin-top: 40px;
+}
+
+canvas {
+    max-width: 100%;
+    height: 400px;
+}
+
+/*portfolio CSS end*/
+
+
+.pagination {
+ justify-content: center;
+ justify-content: space-between;
+ padding: 20px;
+ font-weight: bold;
+}
+
+.pagination a{
+    border-radius: 50%;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 25px;
+    vertical-align: text-top;
+    font-weight: bold;
+    height: 40px;
+    display: inline-block;
+    width: 40px;
+    text-align: center;
+    box-sizing: content-box;
+    color: var(--bs-blue);
+    box-shadow: rgba(0, 0, 0, 0.15) 0px 3px 3px 0px;
+    text-decoration: none;
+}
+
+.pagination a:hover{
+    background-color: #3498db;
+    color: white;
+
+}
+
+.time-buttons button{
+    background-color: transparent;
+    border: none;
+    padding: 7px;
+    border-radius: 5px;
+    margin: 7px;
+}
+
+.time-buttons button.active{
+    background-color: #3498db20;
+    color: #3498db;
+}
+
+.time-buttons button:hover{
+    background-color: #3498db20;
+    color: #3498db;
+}
+
+
+.article-thumb{
+    width: 100%;
+    border-radius: 10px;
+    min-height:100px;
+    max-height: 150px;
+    border: 1px solid rgba(0, 0, 0, 0.142);
+}
+
+.news_row{
+    border-bottom: 1px solid rgba(0, 0, 0, 0.136);
+}
+
+.table-responsive{
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+}
+
+.stk_sym a{
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+#stk_per{
+    font-size: 16px;
+}
+
+
+.summary_container .stk_summary{
+    display: flex;
+    justify-content: space-between;
+    border-bottom:  1px dashed var(--border-color);
+    padding: 5px 0px;
+}
+
+.card{
+    border: 1px solid #dde0e457;
+    border-radius: 7px;
+}
+
+.watchlist_btn,.watchlist_btn:active{
+    line-height: 1.25rem;
+    font-size: .875rem;
+    letter-spacing: .0178571429em;
+    font-weight: 500;
+    border-width: 0;
+    box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .3), 0 1px 3px 1px rgba(60, 64, 67, .15) !important;
+    border-radius: 24px;
+    color: rgb(60, 64, 67);
+    background-color: #fff;
+    margin-bottom: 2px;
+    height: 32px;
+    width: 100%;
+}
+
+.watchlist_btn:hover{
+    color: var(--dark-color);
+    background-color: rgb(248, 249, 250);
+}
+
+.watchlist_btn i{
+    color: var(--primary-color);
+    font-size: 17px;
+    font-weight: bolder;
+    display: inline-block;
+    margin-right: 5px;
+    text-align: center;
+}
+
+
+.hist_data td, .hist_data th{
+    padding: 7px !important;
+}
+
+
+.input-group{
+    position: relative;
+}
+
+.input-group input{
+    border-radius: 30px !important;
+    padding: 10px 20px;
+    background: #1d73be12;
+}
+
+.input-group .input-group-append{
+    position: absolute;
+    right: 0;
+}
+
+.input-group .input-group-append button{
+    padding: 8px 33px;
+    border-radius: 30px !important;
+    font-weight: bolder;
+    background-color: var(--primary-color);
+}
+
+.suggestions_box{
+    max-height: 500px;
+    overflow: auto;
+    top: 100%;
+    z-index: 1000;
+    background: white;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
+    display: none;
+}
+
+.list-group-item-action:focus, .list-group-item-action:hover{
+    background-color: #f8f9fa !important;
+}
+
+
+
+.suggestions_box .stk_sym{
+    font-weight: 500;
+    color: var(--primary-color);
+    font-size: 16px;
+    
+}
+
+.suggestions_box p{
+    margin-bottom: 0px !important;
+}
+.suggestions_box .list-group-item-action{
+    border:none !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    margin-bottom: 0px !important;
+
+}
+
+
+.suggestions_box .bi-exclamation-circle-fill{
+    color: var(--primary-color);
+    font-size: 25px;
+}
+
+#search_stocks{
+    cursor: pointer;
+}
+
+.tab-pane {
+    display: none;
+}
+
+.card.active {
+    display: block; /* Show the active tab */
+}
+
+.nav-tabs .nav-link {
+    border-bottom: none;
+    border-radius:30px;
+    margin-right: 10px;
+    padding: 5px 15px !important;
+}
+
+
+.nav-tabs .nav-link:hover, .nav-tabs .nav-link.active {
+    background: var(--primary-color);
+    color: white;
+}
+
+.nav_card{
+    margin-bottom: 10px;
+    border-radius: 50px;
+}
+
+.nav_card .card-body{
+    padding:10px !important;
+}
+
+
+.single_summary, .stk_pred_details .row{
+    border-bottom: 1px dashed var(--border-color);
+    padding:7px 0px;
+}
+
+.summary_container{
+    padding: 15px;
+}
+.summary_container p{
+    margin-bottom: 0;
+}
+
+.summary_container .stk_sym{
+    color: var(--primary-color);
+    font-size: 13px;
+    font-weight: bold;
+}
+.summary_container .stk_name{
+    font-size: 13px;
+    color: var(--secondary-color);
+}
+.summary_container .stk_price{
+    font-size: 13px;
+    font-weight: bold;
+}
+.summary_container .stk_change{
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.table td p{
+    margin-bottom: 0px;
+}
+
+.stk-loader td span{
+    height: 20px;
+    display: block;
+    background: linear-gradient(to right, #eee 20%, #ddd 50%, #eee 80%);
+    background-size: 500px 100px;
+    animation-name: moving-gradient;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+}
+
+
+@-webkit-keyframes moving-gradient {
+    0% {
+        background-position: -250px 0;
+    }
+    100% {
+        background-position: 250px 0;
+    }
+}
+
+
+.stk_price_container{
+    display: flex;
+
+}
+
+body{
+    background-color: #1975c00d;
+}
+
+.predict_form p{
+    margin-bottom: 8px;
+}
+
+.predict_form input,.predict_form select{
+    padding: 10px;
+    width: 100%;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    margin-bottom: 0px;
+}
+
+.predict_form label{
+    font-weight: bold;
+    margin-bottom: 0px;
+    font-size: 14px;
+}
+.predict_form button{
+    padding: 10px;
+    width: 100%;
+    border-radius: 5px;
+    border: none;
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: bold;
+    align-self: end;
+}
+
+/* .form-control{
+    height: 100%;
+} */
+
+
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+.profile-header img {
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+}
+.profile-header .btn {
+    margin-left: 20px;
+}
+.profile-info {
+    text-align: center;
+}
+.profile-info h2 {
+    margin-top: 10px;
+}
+.profile-info p {
+    margin: 5px 0;
+}
+.form-control {
+    height: auto;
+}
+.profile-form {
+    display: none;
+    margin-top: 20px;
+}
+
+
+.pro-hide{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+
+.table{
+    margin-bottom: 0;
+}
+
+.btn-no-bg{
+    background-color: transparent;
+    border: none;
+}
+
+.modal-content{
+    padding: 10px;
+}
+.modal-header{
+    border-bottom: 1px solid var(--border-color);
+}
