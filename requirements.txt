@@ -9,5 +9,7 @@ pillow
 requests
 scikit-learn
 seaborn
-tensorflow
+tensorflow.keras.models
+tensorflow.keras.layers
+tensorflow.keras.optimizers
 yfinance
